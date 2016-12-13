@@ -16,11 +16,12 @@
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
+        android:layout_margin="16dp"
         android:src="@drawable/csounds_logo_cond"
         android:contentDescription="@string/app_name"/>
 
     <ListView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/sound_list"
 

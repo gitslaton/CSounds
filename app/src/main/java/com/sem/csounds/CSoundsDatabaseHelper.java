@@ -9,6 +9,11 @@ class CSoundsDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "CSounds";
     private static final int DB_VERSION = 1;
+    String Wilson = "Dr. Theresa Wilson";
+    String Skiadas = "Dr. Haris Skiadas";
+    String Wahl = "Dr. Barbara Wahl";
+    String Collins = "Dr. John Collins";
+
 
 
     CSoundsDatabaseHelper(Context context) {
@@ -34,19 +39,19 @@ class CSoundsDatabaseHelper extends SQLiteOpenHelper {
                 + "IMAGE_ID INTEGER);");
 
         insertPeople(db, "Collins",
-                "Dr. John Collins",
+                Collins,
                 "Collins Bio",
                 R.drawable.collins);
         insertPeople(db, "Skiadas",
-                "Dr. Haris Skiadas",
+                Skiadas,
                 "Skiadas Bio",
                 R.drawable.skiadas);
         insertPeople(db, "Wahl",
-                "Dr. Barbara Wahl",
+                Wahl,
                 "Wahl Bio",
                 R.drawable.wahl);
         insertPeople(db, "Wilson",
-                "Dr. Theresa Wilson",
+                Wilson,
                 "Wilson Bio",
                 R.drawable.wilson);
 
@@ -55,9 +60,6 @@ class CSoundsDatabaseHelper extends SQLiteOpenHelper {
                 + "pNAME TEXT, "
                 + "QUOTE TEXT, "
                 + "SOUND_ID_1 INTEGER PRIMARY KEY);");
-        String Wilson = "Dr. Theresa Wilson";
-        String Skiadas = "Dr. Haris Skiadas";
-        String Wahl = "Dr. Barbara Wahl";
 
         insertSounds(db, Wilson, "Do the coding practice!", R.raw.twilson1);
         insertSounds(db, Wilson, "I'm frowning at you!", R.raw.twilson2);
@@ -77,7 +79,7 @@ class CSoundsDatabaseHelper extends SQLiteOpenHelper {
         insertSounds(db, Skiadas, "Mutation is the root of all evil", R.raw.skiadas4);
         insertSounds(db, Skiadas, "Beware of bugs in the above code, I have only proved it correct, not tried it", R.raw.skiadas5);
 
-
+        insertSounds(db, Collins, "I'm not John Collins...", R.raw.not);
 
     }
 
