@@ -27,11 +27,13 @@ public class ProfessorActivity extends AppCompatActivity {
     public static final String PROFESSSOR = "professor";
     int item;
     String professor;
+
     ListView listView;
     Cursor cursor;
     SQLiteDatabase db;
     MediaPlayer player;
     ArrayList<String> quoteList;
+    ArrayList<Integer> soundIdList;
 
     @Override protected void onStop(){
         super.onStop();
@@ -46,12 +48,12 @@ public class ProfessorActivity extends AppCompatActivity {
         listView = (ListView)findViewById(R.id.sound_list);
         try{
             item = (Integer)getIntent().getExtras().get(ITEM);
-            professor = (String)getIntent().getExtras().get(PROFESSSOR);
+            //professor = (String)getIntent().getExtras().get(PROFESSSOR);
         }
         catch(NullPointerException e){
             e.printStackTrace();
         }
-        String profName = professor;
+        String profName = "";
 
         try{
             SQLiteOpenHelper CSoundsDatabaseHelper = new CSoundsDatabaseHelper(this);
@@ -75,35 +77,38 @@ public class ProfessorActivity extends AppCompatActivity {
                         new String[] {"_id", "NAME", "BIO", "IMAGE_ID", "QUOTE", "SOUND_ID_1"},
                                       "PEOPLE.NAME = ?",
                         new String[] {profName}, null, null, null);
-            //Cursor cursor2 = db.rawQuery("SELECT * FROM PEOPLE " +
-            //                          "INNER JOIN SOUNDS ON PEOPLE.NAME = SOUNDS.NAME " +
-            //                        "WHERE NAME = " + profName, null);
-            String[] col = {"QUOTE"};
-            int[] to = {android.R.id.text1};
 
-             if(cursor.moveToFirst()) {
-                 SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_activated_1,
-                         cursor, col, to, 0);
-                 listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-                 listView.setAdapter(simpleCursorAdapter);
 
-                 Log.e("CURSOR INFO", TextUtils.join(", ", cursor.getColumnNames()));
-                 String nameText = cursor.getString(1);
-                 String bioText = cursor.getString(2);
-                 int imageId = cursor.getInt(3);
+            if(cursor.moveToFirst()) {
+                addToArrayLists(cursor);
 
-                 //TextView name = (TextView) findViewById(R.id.name);
-                 //name.setText(nameText);
+                QuoteListAdapter quoteListAdapter = new QuoteListAdapter(quoteList, soundIdList, this);
+                listView.setAdapter(quoteListAdapter);
 
-                 //TextView bio = (TextView) findViewById(R.id.bio);
-                 //bio.setText(bioText);
+//                String[] col = {"QUOTE"};
+//                int[] to = {android.R.id.text1};
+//                SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_activated_1,
+//                     cursor, col, to, 0);
+//                listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+//                listView.setAdapter(simpleCursorAdapter);
 
-                 ImageView picture = (ImageView) findViewById(R.id.picture);
-                 picture.setImageResource(imageId);
+                Log.e("CURSOR INFO", TextUtils.join(", ", cursor.getColumnNames()));
+//                String nameText = cursor.getString(1);
+//                String bioText = cursor.getString(2);
+                int imageId = cursor.getInt(3);
 
-             }
-            //cursor.close();
-            //db.close();
+                //TextView name = (TextView) findViewById(R.id.name);
+                //name.setText(nameText);
+
+                //TextView bio = (TextView) findViewById(R.id.bio);
+                //bio.setText(bioText);
+
+                ImageView picture = (ImageView) findViewById(R.id.picture);
+                picture.setImageResource(imageId);
+
+            }
+//            cursor.close();
+//            db.close();
 
         } catch(SQLiteException e) {
             Log.v("SQLiteException", "..........SQLITE_EXCEPTION..........");
@@ -112,32 +117,39 @@ public class ProfessorActivity extends AppCompatActivity {
             Log.e("DATABASE ERROR", e.toString());
         }
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                cursor.moveToPosition(position);
-                player = MediaPlayer.create(ProfessorActivity.this, cursor.getInt(5));
-                player.start();
-
-            }
-        });
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            public void onItemClick(AdapterView<?> parent, View view,
+//                                    int position, long id) {
+//                cursor.moveToPosition(position);
+//                player = MediaPlayer.create(ProfessorActivity.this, cursor.getInt(5));
+//                player.start();
+//
+//            }
+//        });
     }
 
-    public void onClick(View v){
-        player = MediaPlayer.create(ProfessorActivity.this, 0);
-        player.start();
-
-    }
-
-    private ArrayList<String> queryToArrayList(Cursor cursor){
-        ArrayList<String> quoteList = new ArrayList<String>();
+    private void addToArrayLists(Cursor cursor){
+        quoteList = new ArrayList<>();
+        soundIdList = new ArrayList<>();
         String quote;
+        int soundId;
 
-        while(cursor.moveToNext()) {
+        cursor.moveToFirst();
+        Log.e("COUNT: ", Integer.toString(cursor.getCount()));
+        int i = 0;
+        while(i < cursor.getCount()) {
+            cursor.moveToPosition(i);
+            Log.e("POSITION:", Integer.toString(cursor.getPosition()));
             quote = cursor.getString(cursor.getColumnIndex("QUOTE"));
+
+            Log.e("QUOTE: ", quote);
             quoteList.add(quote);
 
+            soundId = cursor.getInt(cursor.getColumnIndex("SOUND_ID_1"));
+            soundIdList.add(soundId);
+
+            i+=1;
         }
-        return quoteList;
+        cursor.moveToFirst();
     }
 }
