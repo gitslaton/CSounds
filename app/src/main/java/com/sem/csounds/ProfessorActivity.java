@@ -17,16 +17,21 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.media.MediaPlayer;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProfessorActivity extends AppCompatActivity {
 
     public static final String ITEM = "item";
+    public static final String PROFESSSOR = "professor";
     int item;
+    String professor;
     ListView listView;
     Cursor cursor;
     SQLiteDatabase db;
     MediaPlayer player;
+    ArrayList<String> quoteList;
 
     @Override protected void onStop(){
         super.onStop();
@@ -41,11 +46,12 @@ public class ProfessorActivity extends AppCompatActivity {
         listView = (ListView)findViewById(R.id.sound_list);
         try{
             item = (Integer)getIntent().getExtras().get(ITEM);
+            professor = (String)getIntent().getExtras().get(PROFESSSOR);
         }
         catch(NullPointerException e){
             e.printStackTrace();
         }
-        String profName = "";
+        String profName = professor;
 
         try{
             SQLiteOpenHelper CSoundsDatabaseHelper = new CSoundsDatabaseHelper(this);
@@ -113,8 +119,6 @@ public class ProfessorActivity extends AppCompatActivity {
                 player = MediaPlayer.create(ProfessorActivity.this, cursor.getInt(5));
                 player.start();
 
-
-
             }
         });
     }
@@ -123,5 +127,17 @@ public class ProfessorActivity extends AppCompatActivity {
         player = MediaPlayer.create(ProfessorActivity.this, 0);
         player.start();
 
+    }
+
+    private ArrayList<String> queryToArrayList(Cursor cursor){
+        ArrayList<String> quoteList = new ArrayList<String>();
+        String quote;
+
+        while(cursor.moveToNext()) {
+            quote = cursor.getString(cursor.getColumnIndex("QUOTE"));
+            quoteList.add(quote);
+
+        }
+        return quoteList;
     }
 }
