@@ -2,12 +2,19 @@ package com.sem.csounds;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class AboutActivity extends AppCompatActivity {
+    Handler handler;
+    Runnable update;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,5 +47,48 @@ public class AboutActivity extends AppCompatActivity {
         evan.setText(eBio);
         slaton.setText(sBio);
         maggie.setText(mBio);
+
+
+        //setup viewpager for images
+        final ViewPager mViewPager = (ViewPager) findViewById(R.id.viewPageAndroid);
+        final int[] images = new int[] {R.drawable.group_picture, R.drawable.maggie_and_slaton,
+                R.drawable.maggie_surprised, R.drawable.slatons_back};
+        AndroidImageAdapter adapterView = new AndroidImageAdapter(this, images);
+        mViewPager.setAdapter(adapterView);
+
+        handler = new Handler();
+
+        update = new Runnable() {
+            @Override
+            public void run() {
+
+                if(mViewPager.getCurrentItem() == images.length - 1){
+                    mViewPager.setCurrentItem(0);
+                }
+                else{
+                    mViewPager.setCurrentItem(mViewPager.getCurrentItem() + 1, true);
+                }
+            }
+        };
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(update);
+            }
+        }, 5000, 5000);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (handler!= null) {
+            handler.removeCallbacks(update);
+        }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        handler.postDelayed(update, 5000);
     }
 }

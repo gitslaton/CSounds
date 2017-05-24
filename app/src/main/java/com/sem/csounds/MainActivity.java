@@ -13,6 +13,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,13 +26,13 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 import android.content.res.Configuration;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
-    Handler handler;
-    Runnable update;
+    RecyclerView recyclerView;
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
@@ -46,43 +48,15 @@ public class MainActivity extends AppCompatActivity {
     private int currentPosition = 0;
 
     private SQLiteDatabase db;
-    private Cursor cursor;
+    private Cursor cursor, cursorGrid;
     private ListView drawerList;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final ViewPager mViewPager = (ViewPager) findViewById(R.id.viewPageAndroid);
-        final int[] images = new int[] {R.drawable.group_picture, R.drawable.maggie_and_slaton,
-                R.drawable.maggie_surprised, R.drawable.slatons_back};
-        AndroidImageAdapter adapterView = new AndroidImageAdapter(this, images);
-        mViewPager.setAdapter(adapterView);
-
-        handler = new Handler();
-
-        update = new Runnable() {
-            @Override
-            public void run() {
-
-                if(mViewPager.getCurrentItem() == images.length - 1){
-                    mViewPager.setCurrentItem(0);
-                }
-                else{
-                    mViewPager.setCurrentItem(mViewPager.getCurrentItem() + 1, true);
-                }
-            }
-        };
-
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(update);
-            }
-        }, 5000, 5000);
-
+        //do DB operations for drawer layout
         try{
             SQLiteOpenHelper CSoundsDatabaseHelper = new CSoundsDatabaseHelper(this);
             db = CSoundsDatabaseHelper.getReadableDatabase();
@@ -91,6 +65,11 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{"_id", "LAST_NAME", "NAME"},
                     null, null, null, null,
                     "LAST_NAME ASC");
+            cursorGrid = db.query("PEOPLE",
+                    new String[]{"_id", "LAST_NAME", "NAME", "IMAGE_ID"},
+                    null, null, null, null,
+                    "LAST_NAME ASC");
+            setupRecyclerView(cursorGrid);
 
             CursorAdapter listAdapter = new SimpleCursorAdapter(this,
                     android.R.layout.simple_list_item_1,
@@ -149,6 +128,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void setupRecyclerView(Cursor cursor){
+        ArrayList<Professor> professorArrayList = new ArrayList<>();
+
+        cursor.moveToPosition(-1);
+        while(cursor.moveToNext()){
+            professorArrayList.add(new Professor(cursor));
+        }
+
+        recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+
+        int colNumber = 2;
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(MainActivity.this, colNumber);
+
+        recyclerView.setLayoutManager(gridLayoutManager);
+
+        RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(this, professorArrayList);
+        recyclerView.setAdapter(recyclerViewAdapter);
+    }
     private void selectItem(int position) {
         // update the main content by replacing fragments
         currentPosition = position;
@@ -160,18 +158,11 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.closeDrawer(drawerList);
     }
 
-
     @Override
-    public void onPause() {
-        super.onPause();
-        if (handler!= null) {
-            handler.removeCallbacks(update);
-        }
-    }
-    @Override
-    public void onResume() {
-        super.onResume();
-        handler.postDelayed(update, 5000);
+    public boolean onCreateOptionsMenu(Menu menu){
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, 9, 0, "ABOUT").setShowAsAction(MenuItem.SHOW_AS_ACTION_WITH_TEXT | MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return true;
     }
 
     @Override
@@ -211,6 +202,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true;
+        }
+        else{
+            Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }

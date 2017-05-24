@@ -64,5 +64,13 @@
             android:textSize="20dp"
             android:id="@+id/slaton" />
 
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewPageAndroid"
+            android:layout_width="300dp"
+            android:layout_height="450dp"
+            android:scaleType="fitStart"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="16dp"/>
+
     </LinearLayout>
 </ScrollView>

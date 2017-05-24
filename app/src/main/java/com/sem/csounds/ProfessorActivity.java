@@ -46,18 +46,13 @@ public class ProfessorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_professor);
 
         listView = (ListView)findViewById(R.id.sound_list);
-        try{
-            item = (Integer)getIntent().getExtras().get(ITEM);
-            //professor = (String)getIntent().getExtras().get(PROFESSSOR);
-        }
-        catch(NullPointerException e){
-            e.printStackTrace();
-        }
         String profName = "";
-
         try{
-            SQLiteOpenHelper CSoundsDatabaseHelper = new CSoundsDatabaseHelper(this);
-            db = CSoundsDatabaseHelper.getReadableDatabase();
+            profName = (String)getIntent().getExtras().get(PROFESSSOR);
+        }
+        catch(Exception e){
+            //e.printStackTrace();
+            item = (Integer)getIntent().getExtras().get(ITEM);
 
             if(item == 0) {
                 profName = "Dr. John Collins";
@@ -71,6 +66,12 @@ public class ProfessorActivity extends AppCompatActivity {
             else if(item == 3) {
                 profName = "Dr. Theresa Wilson";
             }
+        }
+
+        try{
+            SQLiteOpenHelper CSoundsDatabaseHelper = new CSoundsDatabaseHelper(this);
+            db = CSoundsDatabaseHelper.getReadableDatabase();
+
             getSupportActionBar().setTitle(profName);
 
             cursor = db.query ("PEOPLE " + "INNER JOIN SOUNDS ON PEOPLE.NAME = SOUNDS.pNAME",
